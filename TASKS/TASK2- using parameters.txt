@@ -1,0 +1,62 @@
+*&---------------------------------------------------------------------*
+*& Report ZKIRAN_TASK_REPORT2
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZKIRAN_TASK_REPORT2.
+
+PARAMETERS p_werks type mard-werks.
+
+TYPES : BEGIN OF ty_mkt ,
+
+      mkt_matnr type mard-matnr ,
+
+      werks type mard-werks ,
+
+      lgort type mard-lgort ,
+
+      END OF ty_mkt .
+
+*TYPES : BEGIN OF ty_matnr ,
+
+*      matnr type makt-matnr ,
+
+*      maktx type makt-maktx,
+
+*      END OF ty_matnr .
+
+
+
+DATA st_mkt type ty_mkt .
+
+DATA v_maktx type makt-maktx .
+
+DATA plant_name type t001w-name1 .
+
+
+
+WRITE : /'MATERIAL' ,
+
+         30 'Description',
+
+         60 'PLANT' ,
+
+         80 'Name',
+
+         120 'LOCATION' .
+
+SELECT single  matnr werks lgort  from mard into st_mkt where werks eq p_werks.
+
+  SELECT SINGLE maktx from makt into v_maktx where matnr eq st_mkt-mkt_matnr and spras eq sy-langu.
+
+   SELECT SINGLE name1 from t001w into plant_name where werks eq st_mkt-werks .
+
+   WRITE : / st_mkt-mkt_matnr ,
+
+            30 v_maktx ,
+
+            60 st_mkt-werks ,
+
+           80 plant_name ,
+
+            120 st_mkt-lgort .

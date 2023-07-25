@@ -1,0 +1,56 @@
+*&---------------------------------------------------------------------*
+*& Report ZKIRAN_TASK2
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZKIRAN_TASK2.
+
+PARAMETERS p_docno TYPE ZKIRAN_VBRK-VBELN.
+
+DATA v_name1 TYPE KNA1-NAME1.
+DATA v_msehl TYPE T006A-MSEHL.
+
+TYPES :  BEGIN OF ty_ZKIRAN_VBRK,
+          VBELN TYPE ZKIRAN_VBRK-VBELN ,
+          KUNRG TYPE ZKIRAN_VBRK-KUNRG,
+          FKDAT TYPE ZKIRAN_VBRK-FKDAT,
+          NETWR TYPE ZKIRAN_VBRK-NETWR,
+        END OF ty_ZKIRAN_VBRK.
+  DATA st_ZKIRAN_VBRK TYPE ty_ZKIRAN_VBRK.
+*        DATA :it_ZKIRAN_VBRK TYPE TABLE of ty_ZKIRAN_VBRK,
+*              wa_ZKIRAN_VBRK LIKE LINE OF it_ZKIRAN_VBRK.
+
+  TYPES : BEGIN OF ty_ZKIRAN_VBRP,
+            POSNR TYPE ZKIRAN_VBRP-VBELN,
+            MATNR TYPE ZKIRAN_VBRP-MATNR,
+            FKIMG TYPE ZKIRAN_VBRP-FKIMG,
+            VRKME TYPE ZKIRAN_VBRP-VRKME,
+            NETWR TYPE ZKIRAN_VBRP-NETWR,
+          END OF ty_ZKIRAN_VBRP.
+   DATA st_ZKIRAN_VBRP TYPE ty_ZKIRAN_VBRP.
+*DATA : it_ZKIRAN_VBRP TYPE TABLE of ty_ZKIRAN_VBRP,
+*       wa_ZKIRAN_VBRP LIKE LINE OF it_ZKIRAN_VBRP.
+
+ select  VBELN KUNRG FKDAT NETWR from ZKIRAN_VBRK INTO st_ZKIRAN_VBRK where VBELN eq p_docno.
+   SELECT SINGLE NAME1 from KNA1 INTO v_name1 WHERE KUNNR eq st_ZKIRAN_VBRK-KUNRG.
+    WRITE : 'DOC NO :',  st_ZKIRAN_VBRK-VBELN,
+           /'PAYER NAME:',  v_name1,
+           /'DATE :', st_ZKIRAN_VBRK-FKDAT,
+           /'NET VALUE :', st_ZKIRAN_VBRK-NETWR.
+
+ENDSELECT.
+
+  WRITE : /'ITEM',
+           20'MATERIAL',
+           40'QUANTITY',
+           70'UOM',
+           80'NET VALUE'.
+
+ SELECT  POSNR MATNR FKIMG VRKME NETWR from ZKIRAN_VBRP INTO st_ZKIRAN_VBRP WHERE VBELN eq p_docno.
+ SELECT SINGLE MSEHL from T006A INTO v_msehl WHERE MSEHI eq st_ZKIRAN_VBRP-VRKME.
+      WRITE: / st_ZKIRAN_VBRP-POSNR,
+             20  st_ZKIRAN_VBRP-MATNR,
+             30 st_ZKIRAN_VBRP-FKIMG,
+             70 v_msehl,
+             75  st_ZKIRAN_VBRP-NETWR.
+  ENDSELECT.

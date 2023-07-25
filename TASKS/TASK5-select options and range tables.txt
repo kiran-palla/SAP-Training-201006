@@ -1,0 +1,55 @@
+*&---------------------------------------------------------------------*
+*& Report ZKIRAN_TASK_REPORT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zkiran_task5_selectoptions.
+*PARAMETERS p_matnr TYPE mard-matnr.
+DATA v_matnr TYPE mard-matnr.
+SELECT-OPTIONS s_matnr for v_matnr.
+TYPES : BEGIN OF ty_mard,
+          matnr TYPE mard-matnr,
+          werks TYPE mard-werks,
+          lgort TYPE mard-lgort,
+        END OF ty_mard.
+
+DATA : ita_mard TYPE TABLE OF ty_mard,
+       wa_mard  LIKE LINE OF ita_mard.
+
+*TYPES : BEGIN OF ty_makt,
+*         maktx TYPE makt-maktx,
+*         END OF ty_makt.
+*        DATA st_makt TYPE ty_makt.
+DATA v_maktx TYPE makt-maktx.
+DATA v_NAME1  TYPE t001w-name1.
+*
+TYPES : BEGIN OF ty_t001w,
+          name1 TYPE t001w-name1,
+          werks TYPE t001w-werks,
+        END OF ty_t001w.
+DATA : it_t001w TYPE TABLE OF ty_t001w,
+       wa_t001w LIKE LINE OF it_t001w.
+
+*  SELECT  SINGLE matnr werks lgort FROM mard INTO st_mard WHERE matnr eq p_matnr.
+*      SELECT  SINGLE maktx  FROM makt  INTO v_maktx WHERE matnr eq p_matnr and spras eq sy-langu.
+*         SELECT  SINGLE name1 FROM T001W  INTO v_NAME1 WHERE werks eq st_mard-werks.
+WRITE : /'M.NO',
+             45'Desciption',
+             80'plant',
+             100 'Plant Name',
+             120'location'.
+
+SELECT matnr werks lgort FROM mard INTO TABLE ita_mard WHERE matnr in s_matnr.
+
+SELECT  SINGLE maktx  FROM makt  INTO v_maktx WHERE matnr in s_matnr AND spras EQ sy-langu.
+*IF ita_mard IS NOT INITIAL.
+  SELECT  name1 werks FROM t001w  INTO TABLE it_t001w FOR ALL ENTRIES IN ita_mard WHERE werks EQ ita_mard-werks.
+*ENDIF.
+LOOP AT ita_mard INTO wa_mard.
+  READ TABLE it_t001w INTO wa_t001w  WITH KEY werks = wa_mard-werks.
+  WRITE : / wa_mard-matnr,
+           45 v_maktx,
+           80 wa_mard-werks,
+           100  wa_t001w-name1,
+           120 wa_mard-lgort.
+ENDLOOP.

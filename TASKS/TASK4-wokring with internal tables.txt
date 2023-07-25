@@ -1,0 +1,52 @@
+*&---------------------------------------------------------------------*
+*& Report ZKIRAN_TASK3_IT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZKIRAN_TASK3_IT.
+
+TYPES : BEGIN OF ty_makt,
+        matnr TYPE matnr,
+        spras TYPE spras,
+        maktx TYPE maktx,
+        END OF ty_makt.
+
+DATA : it_makt TYPE TABLE of ty_makt,
+      wa_makt LIKE LINE OF it_makt.
+
+
+ wa_makt-matnr = '100'.
+ wa_makt-spras ='E'.
+ wa_makt-maktx ='laptop'.
+ APPEND wa_makt to it_makt.
+
+ wa_makt-matnr ='200'.
+ wa_makt-spras ='G'.
+ wa_makt-maktx ='keyboard'.
+APPEND wa_makt to it_makt.
+
+ wa_makt-matnr ='300'.
+ wa_makt-spras ='J'.
+ wa_makt-maktx ='cars'.
+APPEND wa_makt to it_makt.
+
+ wa_makt-matnr ='400'.
+ wa_makt-spras ='I'.
+ wa_makt-maktx ='bikes'.
+APPEND wa_makt to it_makt.
+
+ wa_makt-matnr ='500'.
+ wa_makt-spras ='T'.
+ wa_makt-maktx ='flight'.
+APPEND wa_makt to it_makt.
+WRITE : 'with key'.
+READ TABLE it_makt INTO wa_makt WITH KEY matnr ='200' spras = 'G'.
+ WRITE : / wa_makt-matnr,wa_makt-spras,wa_makt-maktx.
+WRITE : /'with index'.
+read TABLE it_makt INTO wa_makt  index 3.
+ WRITE : / wa_makt-matnr,wa_makt-spras,wa_makt-maktx.
+WRITE : /'with loop'.
+   select matnr spras maktx from makt INTO TABLE it_makt.
+   LOOP at it_makt INTO wa_makt.
+     WRITE : / wa_makt-matnr,wa_makt-spras,wa_makt-maktx.
+   ENDLOOP.

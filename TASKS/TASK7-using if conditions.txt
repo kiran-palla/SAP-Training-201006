@@ -1,0 +1,76 @@
+*&---------------------------------------------------------------------*
+*& Report ZKIRAN_TASK6
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zkiran_task6.
+
+DATA v_docno TYPE zkiran_vbrk-vbeln.
+SELECT-OPTIONS s_docno FOR v_docno.
+
+TYPES : BEGIN OF ty_ZKIRAN_VBRK,
+          vbeln TYPE zkiran_vbrk-vbeln,
+          kunrg TYPE zkiran_vbrk-kunrg,
+          fkdat TYPE zkiran_vbrk-fkdat,
+          netwr TYPE zkiran_vbrk-netwr,
+        END OF ty_ZKIRAN_VBRK.
+DATA : it_ZKIRAN_VBRK TYPE TABLE OF ty_ZKIRAN_VBRK,
+       wa_ZKIRAN_VBRK LIKE LINE OF it_ZKIRAN_VBRK.
+
+TYPES : BEGIN OF ty_KNA1,
+          name1 TYPE kna1-name1,
+          kunnr TYPE kna1-kunnr,
+        END OF ty_KNA1.
+DATA : it_KNA1 TYPE TABLE OF ty_KNA1,
+       wa_KNA1 LIKE LINE OF it_KNA1.
+
+
+TYPES : BEGIN OF ty_ZKIRAN_VBRP,
+          posnr TYPE zkiran_vbrp-vbeln,
+          matnr TYPE zkiran_vbrp-matnr,
+          fkimg TYPE zkiran_vbrp-fkimg,
+          vrkme TYPE zkiran_vbrp-vrkme,
+          netwr TYPE zkiran_vbrp-netwr,
+           vbeln TYPE zkiran_vbrp-vbeln,
+        END OF ty_ZKIRAN_VBRP.
+DATA : it_ZKIRAN_VBRP TYPE TABLE OF ty_ZKIRAN_VBRP,
+       wa_ZKIRAN_VBRP LIKE LINE OF it_ZKIRAN_VBRP.
+
+TYPES : BEGIN OF ty_T006A,
+          msehl TYPE t006a-msehl,
+          msehi TYPE t006a-msehi,
+        END OF ty_T006A.
+DATA : it_T006A TYPE TABLE OF ty_T006A,
+       wa_T006A LIKE LINE OF it_T006A.
+
+
+SELECT vbeln kunrg fkdat netwr FROM zkiran_vbrk INTO TABLE it_ZKIRAN_VBRK WHERE vbeln IN  s_docno[].
+SELECT name1 kunnr FROM kna1 INTO TABLE it_KNA1 FOR ALL ENTRIES IN it_ZKIRAN_VBRK WHERE kunnr EQ it_ZKIRAN_VBRK-kunrg.
+
+  SELECT  posnr matnr fkimg vrkme netwr  vbeln FROM zkiran_vbrp INTO TABLE it_ZKIRAN_VBRP WHERE vbeln IN s_docno[].
+  SELECT  msehl msehi FROM t006a INTO TABLE it_T006A FOR ALL ENTRIES IN it_ZKIRAN_VBRP WHERE msehi EQ it_ZKIRAN_VBRP-vrkme.
+
+DATA v_vbeln_temp LIKE wa_ZKIRAN_VBRP.
+SORT it_ZKIRAN_VBRP BY vbeln.
+LOOP AT it_ZKIRAN_VBRP INTO wa_ZKIRAN_VBRP.
+  READ TABLE it_ZKIRAN_VBRK INTO wa_ZKIRAN_VBRK WITH KEY vbeln = wa_ZKIRAN_VBRP-vbeln.
+ READ TABLE it_KNA1 INTO wa_KNA1 WITH KEY kunnr = wa_ZKIRAN_VBRK-kunrg.
+ READ TABLE it_T006A INTO wa_T006A WITH KEY msehi = wa_ZKIRAN_VBRP-vrkme.
+IF wa_ZKIRAN_VBRP-vbeln NE v_vbeln_temp.
+WRITE : /'DOC NO :',  wa_ZKIRAN_VBRK-vbeln,
+          /'PAYER NAME:', wa_KNA1-name1,
+          /'DATE :', wa_ZKIRAN_VBRK-fkdat,
+          /'NET VALUE :', wa_ZKIRAN_VBRK-netwr.
+   WRITE : /'ITEM',
+           20'MATERIAL',
+           40'QUANTITY',
+           70'UOM',
+           80'NET VALUE'.
+ENDIF.
+      WRITE: / wa_ZKIRAN_VBRP-POSNR,
+             20  wa_ZKIRAN_VBRP-MATNR,
+             30 wa_ZKIRAN_VBRP-FKIMG,
+             70 wa_T006A-msehl,
+             75  wa_ZKIRAN_VBRP-NETWR.
+      v_vbeln_temp = wa_ZKIRAN_VBRP-vbeln.
+      ENDLOOP.

@@ -1,0 +1,35 @@
+*&---------------------------------------------------------------------*
+*& Report ZKIRAN_TASK_REPORT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZKIRAN_TASK_REPORT.
+PARAMETERS p_matnr TYPE mard-matnr.
+TYPES : BEGIN OF ty_mard,
+        matnr TYPE mard-matnr,
+        werks TYPE mard-werks,
+        lgort TYPE mard-lgort,
+         END OF ty_mard.
+       DATA st_mard TYPE ty_mard.
+*TYPES : BEGIN OF ty_makt,
+*         maktx TYPE makt-maktx,
+*         END OF ty_makt.
+*        DATA st_makt TYPE ty_makt.
+ DATA v_maktx TYPE makt-maktx.
+ DATA v_NAME1  TYPE T001W-name1.
+
+
+
+  SELECT  SINGLE matnr werks lgort FROM mard INTO st_mard WHERE matnr eq p_matnr.
+      SELECT  SINGLE maktx  FROM makt  INTO v_maktx WHERE matnr eq p_matnr and spras eq sy-langu.
+         SELECT  SINGLE name1 FROM T001W  INTO v_NAME1 WHERE werks eq st_mard-werks.
+    write : '/M.NO',
+             45'Desciption',
+             80'plant',
+             100 'Plant Name',
+             120'location'.
+    write : / st_mard-matnr,
+             45 v_maktx,
+             80 st_mard-werks,
+             100 v_name1,
+             120 st_mard-lgort.
